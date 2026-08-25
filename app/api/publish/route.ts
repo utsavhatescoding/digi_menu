@@ -17,19 +17,5 @@ export async function POST(request:NextRequest){
     const {error}=await admin().from("menus").upsert({slug,business_name:menu.business_name.trim(),currency:menu.currency||"NPR",phone:cleanPhone(body.phone||""),whatsapp:cleanPhone(body.whatsapp||""),maps_url:mapsUrl,menu_json:menu,published_at:new Date().toISOString()},{onConflict:"slug"});
     if(error)throw error;
     return NextResponse.json({slug,path:`/${slug}`});
-    }catch(error){
-  console.error("Menu publish failed:", error);
-
-  const configuration =
-    error instanceof Error && error.message.includes("not configured");
-
-  return NextResponse.json(
-    {
-      error: configuration
-        ? "Supabase is not connected yet."
-        : "The menu could not be published. Please try again."
-    },
-    { status: 500 }
-  );
-}
+  }catch(error){const configuration=error instanceof Error&&error.message.includes("not configured");return NextResponse.json({error:configuration?"Supabase is not connected yet.":"The menu could not be published. Please try again."},{status:500})}
 }
